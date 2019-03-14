@@ -1,5 +1,5 @@
 ---
-# handlers file for tc-netem
+# handlers file for tc-rate
 - name: NetworkManager restart
   service:
     name: NetworkManager

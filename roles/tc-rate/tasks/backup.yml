@@ -1,5 +1,5 @@
 ---
-# file: roles/tc-netem/tasks/backup.yml
+# file: backup.yml
 - block:
   - name: set backup file
     set_fact: backup_file="{{ backup_item.backup_file }}"
