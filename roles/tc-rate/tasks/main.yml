@@ -14,7 +14,7 @@
 
   always:
   - name: tc rate backup settings
-    include: backup.yml
+    include_tasks: backup.yml
     with_flattened:
       - "{{ is_tc_rate_setting|default() }}"
     loop_control:
