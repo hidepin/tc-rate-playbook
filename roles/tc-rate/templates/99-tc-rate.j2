@@ -14,18 +14,23 @@ case "$2" in
             ip link set dev ifb0 up       > /dev/null 2>&1
 
             tc qdisc add dev ${1} root handle 1: htb default 20
-            tc class add dev ${1} parent 1: classid 1:1 htb rate 1000Mbit
-            tc class add dev ${1} parent 1:1 classid 1:10 htb rate {{ tc_rate }}bit
-            tc class add dev ${1} parent 1:1 classid 1:20 htb rate 1000Mbit
+            tc class add dev ${1} parent 1: classid 1:1 htb rate 1000Mbit ceil 1000Mbit burst 124kB cburst 124kB
+            tc class add dev ${1} parent 1:1 classid 1:10 htb rate {{ tc_rate }}bit ceil {{ tc_rate }}bit burst 124kB cburst 124kB
+            tc class add dev ${1} parent 1:1 classid 1:20 htb rate 1000Mbit ceil 1000Mbit burst 124kB cburst 124kB
+            tc qdisc add dev ${1} parent 1:10 handle 100: pfifo limit 10000
+            tc qdisc add dev ${1} parent 1:20 handle 200: pfifo limit 10000
             tc filter add dev ${1} protocol ip parent 1:0 u32 match ip sport 1111 0xffff flowid 1:10
             tc filter add dev ${1} protocol ip parent 1:0 u32 match ip dport 1111 0xffff flowid 1:10
+
 
             tc qdisc add dev ${1} ingress handle ffff:
             tc filter add dev ${1} parent ffff: protocol ip u32 match u32 0 0 flowid 2:1 action mirred egress redirect dev ifb0
             tc qdisc add dev ifb0 root handle 2: htb default 20
-            tc class add dev ifb0 parent 2: classid 2:1 htb rate 1000Mbit
-            tc class add dev ifb0 parent 2:1 classid 2:10 htb rate {{ tc_rate }}bit
-            tc class add dev ifb0 parent 2:1 classid 2:20 htb rate 1000Mbit
+            tc class add dev ifb0 parent 2: classid 2:1 htb rate 1000Mbit ceil 1000Mbit burst 124kB cburst 124kB
+            tc class add dev ifb0 parent 2:1 classid 2:10 htb rate {{ tc_rate }}bit ceil {{ tc_rate }}bit burst 124kB cburst 124kB
+            tc class add dev ifb0 parent 2:1 classid 2:20 htb rate 1000Mbit ceil 1000Mbit burst 124kB cburst 124kB
+            tc qdisc add dev ifb0 parent 2:10 handle 100: pfifo limit 10000
+            tc qdisc add dev ifb0 parent 2:20 handle 200: pfifo limit 10000
             tc filter add dev ifb0 protocol ip parent 2:0 u32 match ip sport 1111 0xffff flowid 2:10
             tc filter add dev ifb0 protocol ip parent 2:0 u32 match ip dport 1111 0xffff flowid 2:10
             ;;
